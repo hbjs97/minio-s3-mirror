@@ -1,0 +1,24 @@
+{
+  "name": "minio-s3-mirror",
+  "version": "0.0.1",
+  "description": "",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "build": "rm -fr dist && tsc"
+  },
+  "main": "dist/index.js",
+  "repository": "https://github.com/hbjs97/minio-s3-mirror.git",
+  "author": "hbjs97 <hbjs97@naver.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@slack/web-api": "^7.0.4",
+    "child_process": "^1.0.2",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/aws-sdk": "^2.7.0",
+    "@types/node": "^20.12.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.4"
+  }
+}
