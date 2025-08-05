@@ -1,6 +1,6 @@
 {
   "name": "minio-s3-mirror",
-  "version": "0.0.1",
+  "version": "0.0.8",
   "description": "",
   "scripts": {
     "start": "ts-node src/index.ts",
@@ -11,14 +11,12 @@
   "author": "hbjs97 <hbjs97@naver.com>",
   "license": "MIT",
   "dependencies": {
-    "@slack/web-api": "^7.0.4",
-    "child_process": "^1.0.2",
-    "dotenv": "^16.4.5"
+    "@slack/web-api": "^7.8.0",
+    "dotenv": "^16.4.7"
   },
   "devDependencies": {
-    "@types/aws-sdk": "^2.7.0",
-    "@types/node": "^20.12.4",
+    "@types/node": "^20.17.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.4"
+    "typescript": "^5.7.2"
   }
 }

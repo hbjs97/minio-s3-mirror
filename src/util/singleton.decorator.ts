@@ -1,18 +1,16 @@
-export const SINGLETON_KEY = Symbol()
+// Simplified singleton implementation without Proxy overhead
+const instances = new WeakMap<any, any>()
 
-export type SingletonType<T extends new (...args: any[]) => any> = T & {
-  [SINGLETON_KEY]: T extends new (...args: any[]) => infer I ? I : never
+export function Singleton<T extends new (...args: any[]) => any>(target: T): T {
+  return class extends target {
+    constructor(...args: any[]) {
+      const instance = instances.get(target)
+      if (instance) {
+        return instance
+      }
+      
+      super(...args)
+      instances.set(target, this)
+    }
+  } as T
 }
-
-export const Singleton = <T extends new (...args: any[]) => any>(type: T) =>
-  new Proxy(type, {
-    construct(target: SingletonType<T>, argsList, newTarget) {
-      if (target.prototype !== newTarget.prototype) {
-        return Reflect.construct(target, argsList, newTarget)
-      }
-      if (!target[SINGLETON_KEY]) {
-        target[SINGLETON_KEY] = Reflect.construct(target, argsList, newTarget)
-      }
-      return target[SINGLETON_KEY]
-    },
-  })

@@ -1,2 +1,49 @@
+# Git
+.git
+.gitignore
+
+# Node
 node_modules
+npm-debug.log
+yarn-error.log
+yarn.lock
+
+# TypeScript
+dist
+*.tsbuildinfo
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
 .env
+.env.local
+.env.*.local
+
+# Documentation
+*.md
+LICENSE
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+
+# Testing
+coverage
+.nyc_output
+*.test.ts
+*.spec.ts
+
+# Development
+.editorconfig
+.eslintrc*
+.prettierrc*

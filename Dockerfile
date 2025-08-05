@@ -1,42 +1,63 @@
 # Build stage
-FROM node:20.12.1 as builder
+FROM node:20-alpine AS builder
 ENV TZ="Asia/Seoul"
 
 WORKDIR /app
 
-COPY . .
+# Copy package files first for better layer caching
+COPY package*.json ./
+RUN npm ci --only=production
 
-RUN npm install
+# Copy source files
+COPY tsconfig.json ./
+COPY src ./src
 
-RUN npm run build
+# Build TypeScript
+RUN npm install --save-dev typescript @types/node && \
+    npm run build
 
 # ---
 
-# Final stage
-FROM node:20.12.1-slim
+# Final stage - Alpine for mc compatibility
+FROM node:20-alpine
 ENV TZ="Asia/Seoul"
+ENV NODE_ENV="production"
 
-# 작업 디렉토리 설정
 WORKDIR /app
 
-# 필요한 패키지 설치 (예: wget)
-RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
+# Install mc client and required dependencies
+RUN apk add --no-cache \
+    ca-certificates \
+    wget \
+    && rm -rf /var/cache/apk/*
 
-# 아키텍처에 맞는 mc 클라이언트 설치
+# Download and install mc based on architecture
 ARG TARGETARCH
 RUN if [ "${TARGETARCH}" = "amd64" ]; then \
-        wget https://dl.min.io/client/mc/release/linux-amd64/mc -O /usr/local/bin/mc; \
+        wget -q https://dl.min.io/client/mc/release/linux-amd64/mc -O /usr/local/bin/mc; \
     elif [ "${TARGETARCH}" = "arm64" ]; then \
-        wget https://dl.min.io/client/mc/release/linux-arm64/mc -O /usr/local/bin/mc; \
+        wget -q https://dl.min.io/client/mc/release/linux-arm64/mc -O /usr/local/bin/mc; \
     else \
         echo "unsupported architecture: ${TARGETARCH}"; exit 1; \
     fi && \
     chmod +x /usr/local/bin/mc
 
+# Copy only production dependencies and built code
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 
-# 애플리케이션 실행
-ENTRYPOINT ["node", "dist/index.js"]
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
 
-CMD ["node", "dist/index.js"]
+# Change ownership
+RUN chown -R nodejs:nodejs /app
+
+USER nodejs
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "process.exit(0)"
+
+# Use exec form for proper signal handling
+ENTRYPOINT ["node", "dist/index.js"]

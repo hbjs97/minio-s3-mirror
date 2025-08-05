@@ -1,13 +1,13 @@
 import { MirrorManager } from './service'
-import { ShutdownAppMessage, SlackClient, StartAppMessage } from './slack'
+import { SlackClient } from './slack'
 ;(async () => {
   const slack = await SlackClient.init()
   try {
-    await slack?.send(new StartAppMessage())
     const app = new MirrorManager(slack)
-    app.run()
+    await app.run()
   } catch (error: any) {
-    await slack?.send(new ShutdownAppMessage(error.code || -1))
+    console.error('Application failed:', error.message)
+    // Note: Removed shutdown message to reduce noise - errors are reported in the mirror manager
     process.exit(error.code || -1)
   }
 })()
